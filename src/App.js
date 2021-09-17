@@ -1,10 +1,10 @@
-import { render } from "./view/html-util.js";
+import { render, element } from "./view/html-util.js";
 import { TodoListView } from "./view/TodoListView.js";
 import { TodoItemModel } from "./model/TodoItemModel.js";
 import { TodoListModel } from "./model/TodoListModel.js";
 
 export class App {
-    constructor({ formElement, formInputElement, todoListContainerElement, todoCountElement }) {
+    constructor({ formElement, formInputElement, todoCountElement, todoListContainerElement }) {
        this.todoListView = new TodoListView();
        this.todoListModel = new TodoListModel([]);
        // bind to Element
@@ -42,9 +42,17 @@ export class App {
         this.todoListModel.removeTodo({ id });
     }
 
-    hadleSubmit(event) {
+     /**
+     * フォームを送信時に呼ばれるリスナー関数
+     * @param {Event} event
+     */
+    handleSubmit(event) {
         event.preventDefault();
         const inputElement = this.formInputElement;
+        if (!inputElement.value) {
+            console.log("テキストを入力してください。");
+            return;
+        }
         this.handleAdd(inputElement.value);
         inputElement.value = "";
     }
@@ -69,8 +77,8 @@ export class App {
      * アプリとDOMの紐付けを登録する関数
      */
     mount() {
-        this.todoListModel.onChange(this.handleChange());
-        this.formElement.addEventListener("submit", this.handleSubmit());
+        this.todoListModel.onChange(this.handleChange);
+        this.formElement.addEventListener("submit", this.handleSubmit);
     }
 
     /**
@@ -78,6 +86,6 @@ export class App {
      */
     unmount() {
         this.todoListModel.offChange(this.handleChange);
-        this.formElement.removeEventListener("submit", this.hadleSubmit());
+        this.formElement.removeEventListener("submit", this.handleSubmit);
     }
 }
